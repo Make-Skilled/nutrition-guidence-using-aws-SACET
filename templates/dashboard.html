@@ -1,0 +1,499 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- User Profile Card -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Profile</h4>
+                </div>
+                <div class="card-body">
+                    <h5>{{ user.name if user.name else user.email.split('@')[0] }}</h5>
+                    <p class="text-muted">{{ user.email }}</p>
+                    <hr>
+                    <h6>Diet Plan</h6>
+                    <p class="badge bg-primary">{{ user.diet_plan|replace('_', ' ')|title if user.diet_plan else 'Not Set' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Meal Plan Card -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Today's Meal Plan - {{ current_day|title }}</h4>
+                </div>
+                <div class="card-body">
+                    {% if meal_plan %}
+                    <div class="row">
+                        <!-- Breakfast -->
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Breakfast</h5>
+                                </div>
+                                <div class="card-body">
+                                    <h6>{{ meal_plan.breakfast_name }}</h6>
+                                    <p class="mb-1">Calories: {{ meal_plan.breakfast_calories }}</p>
+                                    <p class="mb-0">
+                                        <small class="text-muted">
+                                            Protein: {{ meal_plan.breakfast_protein }}g<br>
+                                            Carbs: {{ meal_plan.breakfast_carbs }}g<br>
+                                            Fats: {{ meal_plan.breakfast_fats }}g
+                                        </small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Lunch -->
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Lunch</h5>
+                                </div>
+                                <div class="card-body">
+                                    <h6>{{ meal_plan.lunch_name }}</h6>
+                                    <p class="mb-1">Calories: {{ meal_plan.lunch_calories }}</p>
+                                    <p class="mb-0">
+                                        <small class="text-muted">
+                                            Protein: {{ meal_plan.lunch_protein }}g<br>
+                                            Carbs: {{ meal_plan.lunch_carbs }}g<br>
+                                            Fats: {{ meal_plan.lunch_fats }}g
+                                        </small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Dinner -->
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Dinner</h5>
+                                </div>
+                                <div class="card-body">
+                                    <h6>{{ meal_plan.dinner_name }}</h6>
+                                    <p class="mb-1">Calories: {{ meal_plan.dinner_calories }}</p>
+                                    <p class="mb-0">
+                                        <small class="text-muted">
+                                            Protein: {{ meal_plan.dinner_protein }}g<br>
+                                            Carbs: {{ meal_plan.dinner_carbs }}g<br>
+                                            Fats: {{ meal_plan.dinner_fats }}g
+                                        </small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No meal plan available for today.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Meal Form -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Log Today's Meal</h4>
+                </div>
+                <div class="card-body">
+                    <form id="meal-form" action="{{ url_for('log_meal') }}" method="POST">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="meal_type" class="form-label">Meal Type</label>
+                                <select class="form-select" id="meal_type" name="meal_type" required>
+                                    <option value="">Select meal type</option>
+                                    <option value="breakfast">Breakfast</option>
+                                    <option value="lunch">Lunch</option>
+                                    <option value="dinner">Dinner</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="food" class="form-label">Food Items</label>
+                                <input type="text" class="form-control" id="food" name="food" placeholder="e.g., Oatmeal with berries" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="calories" class="form-label">Calories</label>
+                                <input type="number" class="form-control" id="calories" name="calories" min="0" required>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="protein" class="form-label">Protein (g)</label>
+                                <input type="number" class="form-control" id="protein" name="protein" min="0" required>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="carbs" class="form-label">Carbs (g)</label>
+                                <input type="number" class="form-control" id="carbs" name="carbs" min="0" required>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="fats" class="form-label">Fats (g)</label>
+                                <input type="number" class="form-control" id="fats" name="fats" min="0" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Log Meal</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row">
+        <!-- Weekly Progress Chart -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Weekly Progress</h4>
+                </div>
+                <div class="card-body">
+                    <canvas id="weeklyProgressChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nutrition Composition -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Today's Nutrition</h4>
+                </div>
+                <div class="card-body">
+                    <canvas id="nutritionPieChart"></canvas>
+                    <div class="mt-3">
+                        <p class="mb-1">Total Calories: <span id="totalCalories">0</span></p>
+                        <div class="d-flex justify-content-between">
+                            <small>Protein: <span id="totalProtein">0</span>g</small>
+                            <small>Carbs: <span id="totalCarbs">0</span>g</small>
+                            <small>Fats: <span id="totalFats">0</span>g</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Meals -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Recent Meals</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Meal Type</th>
+                            <th>Food</th>
+                            <th>Calories</th>
+                            <th>Protein</th>
+                            <th>Carbs</th>
+                            <th>Fats</th>
+                            <th>Match Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for meal in recent_meals %}
+                        <tr>
+                            <td>{{ meal.timestamp }}</td>
+                            <td>{{ meal.meal_type|title }}</td>
+                            <td>{{ meal.food }}</td>
+                            <td>{{ meal.calories }}</td>
+                            <td>{{ meal.protein }}g</td>
+                            <td>{{ meal.carbs }}g</td>
+                            <td>{{ meal.fats }}g</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="progress flex-grow-1" style="height: 8px;">
+                                        <div class="progress-bar {% if meal.match_score >= 80 %}bg-success{% elif meal.match_score >= 60 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                            role="progressbar" 
+                                            style="width: {{ meal.match_score }}%" 
+                                            aria-valuenow="{{ meal.match_score }}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <span class="ms-2">{{ meal.match_score }}%</span>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const weeklyProgress = {{ weekly_progress|tojson|safe }};
+    let pieChart = null;
+
+    function updateDashboard() {
+        fetch('/get-todays-meals')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    console.error('Error:', data.error);
+                    return;
+                }
+
+                // Update pie chart
+                const pieCtx = document.getElementById('nutritionPieChart');
+                if (pieCtx) {
+                    // Destroy existing chart if it exists
+                    if (pieChart) {
+                        pieChart.destroy();
+                    }
+
+                    pieChart = new Chart(pieCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: ['Protein', 'Carbs', 'Fats'],
+                            datasets: [{
+                                data: [data.totals.protein, data.totals.carbs, data.totals.fats],
+                                backgroundColor: [
+                                    'rgb(255, 99, 132)',
+                                    'rgb(54, 162, 235)',
+                                    'rgb(255, 205, 86)'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Today\'s Nutrition Distribution (g)'
+                                },
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Update meals table
+                const tbody = document.querySelector('table tbody');
+                if (tbody && data.meals) {
+                    tbody.innerHTML = '';
+                    data.meals.forEach(meal => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${meal.timestamp}</td>
+                            <td>${meal.meal_type}</td>
+                            <td>${meal.food}</td>
+                            <td>${meal.calories}</td>
+                            <td>${meal.protein}g</td>
+                            <td>${meal.carbs}g</td>
+                            <td>${meal.fats}g</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="progress flex-grow-1" style="height: 8px;">
+                                        <div class="progress-bar ${meal.match_score >= 80 ? 'bg-success' : meal.match_score >= 60 ? 'bg-warning' : 'bg-danger'}" 
+                                            role="progressbar" 
+                                            style="width: ${meal.match_score}%" 
+                                            aria-valuenow="${meal.match_score}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <span class="ms-2">${meal.match_score}%</span>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Initial dashboard update
+    updateDashboard();
+
+    // Handle meal form submission
+    const mealForm = document.getElementById('meal-form');
+    if (mealForm) {
+        mealForm.addEventListener('submit', event => {
+            event.preventDefault();
+            const formData = new FormData(mealForm);
+            
+            fetch('/log-meal', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to log meal');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Clear form
+                    mealForm.reset();
+                    // Update dashboard immediately
+                    updateDashboard();
+                    // Show success message
+                    alert('Meal logged successfully!');
+                } else {
+                    throw new Error(data.error || 'Failed to log meal');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to log meal. Please try again.');
+            });
+        });
+    }
+
+    // Weekly Progress Chart
+    const weeklyCtx = document.getElementById('weeklyProgressChart');
+    if (weeklyCtx) {
+        const labels = weeklyProgress.map(day => day.date || '');
+        const scores = weeklyProgress.map(day => day.score || 0);
+
+        new Chart(weeklyCtx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Daily Meal Match Score',
+                    data: scores,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Match Score (%)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Weekly Meal Plan Adherence'
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialize nutrition pie chart
+    const nutritionCtx = document.getElementById('nutritionPieChart').getContext('2d');
+    let nutritionChart = new Chart(nutritionCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Protein', 'Carbs', 'Fats'],
+            datasets: [{
+                data: [0, 0, 0],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 206, 86, 0.8)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Function to update nutrition totals and chart
+    function updateNutritionChart() {
+        fetch('/get-todays-meals')
+            .then(response => response.json())
+            .then(data => {
+                let totalProtein = 0;
+                let totalCarbs = 0;
+                let totalFats = 0;
+                let totalCalories = 0;
+
+                data.meals.forEach(meal => {
+                    totalProtein += parseFloat(meal.protein || 0);
+                    totalCarbs += parseFloat(meal.carbs || 0);
+                    totalFats += parseFloat(meal.fats || 0);
+                    totalCalories += parseFloat(meal.calories || 0);
+                });
+
+                // Update chart
+                nutritionChart.data.datasets[0].data = [totalProtein, totalCarbs, totalFats];
+                nutritionChart.update();
+
+                // Update totals display
+                document.getElementById('totalProtein').textContent = totalProtein.toFixed(1);
+                document.getElementById('totalCarbs').textContent = totalCarbs.toFixed(1);
+                document.getElementById('totalFats').textContent = totalFats.toFixed(1);
+                document.getElementById('totalCalories').textContent = totalCalories.toFixed(1);
+            })
+            .catch(error => console.error('Error fetching meals:', error));
+    }
+
+    // Handle meal form submission
+    document.getElementById('meal-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch('/log-meal', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateNutritionChart();
+                this.reset();
+                location.reload(); // Refresh to update the recent meals table
+            } else {
+                alert('Error logging meal: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error logging meal');
+        });
+    });
+
+    // Initial load of nutrition data
+    updateNutritionChart();
+});
+</script>
+{% endblock %}

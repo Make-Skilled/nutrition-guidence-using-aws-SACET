@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <h1 class="display-4 mb-4">Welcome to Nutrition Guidance</h1>
+        <p class="lead">Your personal guide to a healthier lifestyle through better nutrition.</p>
+        <div class="mt-5">
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg mx-2">Get Started</a>
+            <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg mx-2">Login</a>
+        </div>
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <h3>Personalized Plans</h3>
+                <p>Get customized meal plans based on your health goals and preferences.</p>
+            </div>
+            <div class="col-md-4">
+                <h3>Track Progress</h3>
+                <p>Monitor your nutrition intake and track progress towards your goals.</p>
+            </div>
+            <div class="col-md-4">
+                <h3>Real-time Analytics</h3>
+                <p>Get insights into your nutrition habits and make informed decisions.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
