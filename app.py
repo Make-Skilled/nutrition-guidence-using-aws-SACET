@@ -735,4 +735,4 @@ if __name__ == '__main__':
     create_tables()
     print("Reinitializing meal plans...")
     initialize_meal_plans()
-    app.run(debug=True)
+    app.run(debug=True,host='0.0.0.0',port=5000)
